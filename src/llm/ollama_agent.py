@@ -10,14 +10,16 @@ class OllamaAgent:
 
     def _initialize_chat_history(self):
         """Initialize chat history with system message."""
-        self.add_message("system", "You are a helpful personal voice Assistant. Do not generate formatter answers. Do not generate emoticons and keeps answers concise.")
+        self.add_message("system", 
+                         " You are a helpful personal voice Assistant. Make sure your responses have no text formatting, no hi-lights or bullets and do not generate emoticons and keep answers concise.")
 
     def add_message(self, role: str, content: str):
         """Add a message to the chat history."""
         self.chat_history.append({"role": role, "content": content})
 
     def _remove_emojis(self, text: str) -> str:
-        """Remove emojis from text."""
+        """Remove emojis and formatting characters from text."""
+        # Remove emojis
         emoji_pattern = re.compile(
             "["
             "\U0001F600-\U0001F64F"  # emoticons
@@ -27,7 +29,16 @@ class OllamaAgent:
             "]+",
             flags=re.UNICODE,
         )
-        return emoji_pattern.sub(r'', text)
+        text = emoji_pattern.sub(r'', text)
+        
+        # Remove markdown and formatting characters
+        formatting_pattern = re.compile(r'[*_~`#]|\[|\]|\(\)|```|`|>|#+')
+        text = formatting_pattern.sub('', text)
+        
+        # Remove multiple spaces and trim
+        text = re.sub(r'\s+', ' ', text).strip()
+        
+        return text
 
     def get_response(self, prompt: str) -> str:
         """Get response from Ollama LLM."""
