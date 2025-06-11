@@ -19,6 +19,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.apoorva.env
 
 # Virtual Environment
 venv/
