@@ -5,12 +5,14 @@ from src.tts.coqui_agent import CoquiTTSAgent
 from src.stt.whisper_agent import WhisperSTTAgent
 from src.vad.processor import VADProcessor
 from src.llm.ollama_agent import OllamaAgent
+from src.llm.openai_agent import OpenAIAgent
 
 async def main():
     # Initialize agents
     tts_agent = CoquiTTSAgent()
     stt_agent = WhisperSTTAgent()
     llm_agent = OllamaAgent()
+    #llm_agent = OpenAIAgent()
     vad_processor = VADProcessor()
     
     print("\n[SYSTEM] Ready! Listening for your voice...")
@@ -31,7 +33,7 @@ async def main():
                   
                     print(f"Passing this down to llm : {transcribed_text}")
                     if transcribed_text:
-                        llm_response = llm_agent.get_response(transcribed_text)
+                        llm_response = await llm_agent.get_response(transcribed_text)
                         if llm_response:
                             await tts_agent.synthesize(llm_response)
                     else:

@@ -1,11 +1,13 @@
 import ollama
 from collections import deque
 import re
+from .base import LLMAgent
+import asyncio
 
-class OllamaAgent:
+class OllamaAgent(LLMAgent):
     def __init__(self, model_name: str = "qwen3:8b", max_history: int = 10):
+        super().__init__(max_history)
         self.model_name = model_name
-        self.chat_history = deque(maxlen=max_history)
         self._initialize_chat_history()
 
     def _initialize_chat_history(self):
@@ -40,7 +42,7 @@ class OllamaAgent:
         
         return text
 
-    def get_response(self, prompt: str) -> str:
+    async def get_response(self, prompt: str) -> str:
         """Get response from Ollama LLM."""
         if not prompt:
             return "Please say something."
@@ -48,10 +50,15 @@ class OllamaAgent:
         print(f"[LLM] Sending prompt to Ollama: '{prompt}'")
         try:
             print(list(self.chat_history))
-            response = ollama.chat(
-                model=self.model_name,
-                messages=list(self.chat_history) + [{'role': 'user', 'content': prompt}],
-                think=False
+            # Run Ollama in a thread pool since it's not async
+            loop = asyncio.get_running_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: ollama.chat(
+                    model=self.model_name,
+                    messages=list(self.chat_history) + [{'role': 'user', 'content': prompt}],
+                    think=False
+                )
             )
             self.add_message("user", prompt)
         except Exception as e:
