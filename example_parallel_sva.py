@@ -20,6 +20,11 @@ class VoiceAssistantMultiprocess:
         self.tts_active_event = mp.Event()  # New event for TTS state
 
     def start(self):
+        print("[SYSTEM] Available audio devices:")
+        print(sd.query_devices())
+        print("\n[SYSTEM] Default input device:", sd.query_devices(kind='input'))
+        print("[SYSTEM] Default output device:", sd.query_devices(kind='output'))
+        
         # Process 1: Audio I/O (capture + playback) + STT
         audio_process = Process(target=self.audio_io_process)
 
@@ -49,9 +54,12 @@ class VoiceAssistantMultiprocess:
         vad_processor = VADProcessor()
         
         print("[AUDIO] Starting audio capture with VAD...")
+        print(f"[AUDIO] Sample rate: {vad_processor.sample_rate}")
+        print(f"[AUDIO] Using device: {sd.query_devices(kind='input')}")
         
         try:
             with sd.InputStream(samplerate=vad_processor.sample_rate, channels=1, dtype='int16') as stream:
+                print("[AUDIO] Successfully opened audio input stream")
                 frames = vad_processor.audio_frame_generator(stream)
                 
                 for audio_segment in vad_processor.vad_collector(frames):
@@ -79,6 +87,7 @@ class VoiceAssistantMultiprocess:
                         
         except Exception as e:
             print(f"[AUDIO] Error in audio capture: {e}")
+            print("[AUDIO] Full error details:", sys.exc_info())
 
     async def add_to_text_queue(self, text):
         """Add transcribed text to processing queue"""

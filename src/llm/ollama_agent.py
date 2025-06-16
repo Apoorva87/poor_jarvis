@@ -66,6 +66,7 @@ class OllamaAgent(LLMAgent):
             return "Sorry. My brain isnt working, try again. Pardon me."
 
         print(f"[LLM] Ollama response: '{response}'")
-        text = self._remove_emojis(response['message']['content'])
+        text = self._clean_text(response['message']['content'])
+
         self.add_message(response['message']['role'], text)
-        return response['message']['content'] 
+        return text

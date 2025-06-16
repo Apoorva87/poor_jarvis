@@ -25,6 +25,9 @@ class VADProcessor:
                 print(f"Error reading from audio stream: {e}", file=sys.stderr)
                 break
 
+    def is_speech(self, frame):
+        return self.vad.is_speech(frame, self.sample_rate)
+
     def vad_collector(self, frames):
         """Filters out non-speech frames using VAD and collects speech segments."""
         num_padding_frames = int(self.padding_duration_ms / self.frame_duration_ms)

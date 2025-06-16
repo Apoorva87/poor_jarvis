@@ -78,6 +78,6 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 This project is open source and available under the MIT License.
 
 ## Acknowledgments
-
+- webrtc implementation - git clone https://github.com/pipecat-ai/small-webrtc-prebuilt.git
 - Built with Python's speech recognition and text-to-speech libraries
 - Inspired by the need for accessible voice assistant technology

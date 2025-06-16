@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  voice-assistant:
+    build: .
+    volumes:
+      - .:/app
+    #  - ${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native
+    #  - ~/.config/pulse/cookie:/root/.config/pulse/cookie
+    devices:
+      - /dev/snd:/dev/snd  # For audio device access
+    #environment:
+    #  - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
+    #  - OLLAMA_HOST=host.docker.internal
+    #extra_hosts:
+    #  - "host.docker.internal:host-gateway"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
+    networks:
+      - app-network
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+    healthcheck:
+      test: >
+        bash -c '
+          echo "Checking Ollama health..." &&
+          ollama list | grep -q "qwen3:8b" &&
+          echo "Health check passed!"
+        '
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    command: serve
+    entrypoint: >
+      /bin/sh -c "
+        echo 'Starting Ollama server...' &&
+        ollama serve &
+        sleep 5 &&
+        echo 'Pulling qwen3:8b model...' &&
+        ollama pull qwen3:8b &&
+        echo '✅ Ollama server is running and qwen3:8b model is ready!' &&
+        tail -f /dev/null
+      "
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  ollama_data: 

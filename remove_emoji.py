@@ -12,9 +12,19 @@ def remove_emojis(text):
         "]+",
         flags=re.UNICODE,
     )
-    return emoji_pattern.sub(r'', text)
+    text = emoji_pattern.sub(r'', text)
+        
+    # Remove markdown and formatting characters
+    formatting_pattern = re.compile(r'[*_~`#]|\[|\]|\(\)|```|`|>|#+')
+    text = formatting_pattern.sub('', text)
+    
+    # Remove multiple spaces and trim
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
+    #return emoji_pattern.sub(r'', text)
 
-mystr="Hello! How can I assist you today? 😊"
+mystr="Hello! How can I assist you today? 😊. Here are points 1. **Apoorva**  2. *Pascal* "
 print(mystr)
 print(remove_emojis(mystr))
 

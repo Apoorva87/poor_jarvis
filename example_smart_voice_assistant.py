@@ -6,6 +6,7 @@ from src.stt.whisper_agent import WhisperSTTAgent
 from src.vad.processor import VADProcessor
 from src.llm.ollama_agent import OllamaAgent
 from src.llm.openai_agent import OpenAIAgent
+import threading
 
 async def main():
     # Initialize agents
